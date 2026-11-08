@@ -118,7 +118,7 @@ Certifications (tick all three):
 - I do not use or transfer user data for purposes that are unrelated to my item's single purpose.
 - I do not use or transfer user data to determine creditworthiness or for lending purposes.
 
-**Privacy policy URL:** host the text below (for example at https://www.theopenpantry.com/food-cost-calculator-extension-privacy) or link the general policy at https://www.theopenpantry.com/privacy if it covers the extension.
+**Privacy policy URL:** https://open-pantry-tech.github.io/food-cost-calculator/chrome-extension/privacy.html (the text below, published from `chrome-extension/privacy.md`).
 
 ## Privacy policy text
 
