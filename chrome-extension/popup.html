@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Food Cost Calculator by Open Pantry</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header class="top">
+    <img src="icons/icon-32.png" width="24" height="24" alt="">
+    <div class="brand">
+      <h1>Food Cost Calculator</h1>
+      <span>by Open Pantry</span>
+    </div>
+  </header>
+
+  <section class="results" aria-live="polite" aria-label="Results">
+    <div class="headline">
+      <div>
+        <div class="kicker">Food cost</div>
+        <div class="big" id="out-fc">–</div>
+      </div>
+      <span class="chip" id="out-status" hidden></span>
+    </div>
+    <dl class="stats">
+      <div><dt>Plate cost</dt><dd id="out-plate">–</dd></div>
+      <div><dt>Gross profit</dt><dd id="out-gp">–</dd></div>
+      <div><dt id="out-target-label">Price at target</dt><dd id="out-sugg">–</dd></div>
+    </dl>
+    <p class="verdict" id="out-verdict"></p>
+  </section>
+
+  <main>
+    <section class="card">
+      <label class="field">
+        <span>Dish</span>
+        <input id="dish" type="text" placeholder="e.g. Beef burger" autocomplete="off">
+      </label>
+      <div class="row2">
+        <label class="field">
+          <span>Menu price ($)</span>
+          <input id="price" type="number" min="0" step="any" inputmode="decimal">
+        </label>
+        <label class="field">
+          <span>Target food cost (%)</span>
+          <input id="target" type="number" min="1" max="90" step="1" inputmode="decimal">
+        </label>
+      </div>
+      <label class="field">
+        <span>Tax</span>
+        <select id="tax">
+          <option value="0.1">Menu price includes 10% GST</option>
+          <option value="0">No tax in the menu price</option>
+        </select>
+      </label>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>Ingredients</h2>
+        <span class="hint">Pack prices ex GST</span>
+      </div>
+      <ol class="ings" id="ings"></ol>
+      <button type="button" class="btn-primary" id="add">+ Add ingredient</button>
+      <div class="minor">
+        <button type="button" class="link" id="example">Load example</button>
+        <span aria-hidden="true">·</span>
+        <button type="button" class="link" id="clear">Start blank</button>
+      </div>
+    </section>
+
+    <section class="promo">
+      <p>Costing a whole menu? <strong>Menu Profit Manager</strong> reads your supplier invoices and keeps every dish costed when prices move.</p>
+      <div class="links">
+        <a href="https://www.theopenpantry.com/menuprofitmanager" target="_blank" rel="noopener">Menu Profit Manager</a>
+        <a href="https://www.theopenpantry.com/food-cost-calculator" target="_blank" rel="noopener">Online calculator &amp; template</a>
+      </div>
+    </section>
+
+    <p class="formula">Food cost % = plate cost ÷ menu price ex tax × 100. Line cost = pack price ÷ pack size × qty used ÷ yield. Saved on this device only.</p>
+  </main>
+
+  <template id="ing-tpl">
+    <li class="ing">
+      <div class="ing-top">
+        <input class="i-name" type="text" placeholder="Ingredient" aria-label="Ingredient name" autocomplete="off">
+        <output class="i-cost">$0.00</output>
+        <button type="button" class="i-del" aria-label="Remove ingredient" title="Remove">×</button>
+      </div>
+      <div class="ing-grid">
+        <label><span>Pack $</span><input class="i-price" type="number" min="0" step="any" inputmode="decimal"></label>
+        <label><span>Pack size</span><input class="i-size" type="number" min="0" step="any" inputmode="decimal"></label>
+        <label><span>Unit</span><select class="i-punit"></select></label>
+        <label><span>Qty used</span><input class="i-qty" type="number" min="0" step="any" inputmode="decimal"></label>
+        <label><span>Unit</span><select class="i-qunit"></select></label>
+        <label><span>Yield %</span><input class="i-yield" type="number" min="1" max="100" step="1" inputmode="decimal"></label>
+      </div>
+      <p class="i-err" hidden>Weight, volume and count don't convert. Use the same kind of unit for pack and qty.</p>
+    </li>
+  </template>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

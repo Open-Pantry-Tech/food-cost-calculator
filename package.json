@@ -1,0 +1,51 @@
+{
+  "name": "@openpantry/food-cost",
+  "version": "1.0.0",
+  "description": "Food cost calculator and food cost formula: recipe costing with yield, plate cost, food cost percentage, gross profit and menu pricing. Dependency-free JS and Python.",
+  "type": "module",
+  "main": "./src/foodCost.js",
+  "module": "./src/foodCost.js",
+  "exports": {
+    ".": "./src/foodCost.js"
+  },
+  "files": [
+    "src/",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "test": "node --test",
+    "test:py": "python3 -m unittest discover -s python -p 'test_*.py'"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "food cost calculator",
+    "food cost formula",
+    "food cost percentage",
+    "recipe costing",
+    "recipe cost calculator",
+    "menu costing",
+    "menu price calculator",
+    "plate cost",
+    "gross profit",
+    "restaurant food cost",
+    "cafe food cost",
+    "food-cost",
+    "restaurant",
+    "hospitality"
+  ],
+  "homepage": "https://www.theopenpantry.com/food-cost-calculator",
+  "author": "Open Pantry (https://www.theopenpantry.com)",
+  "license": "MIT",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Open-Pantry-Tech/food-cost-calculator.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Open-Pantry-Tech/food-cost-calculator/issues"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Food Cost Calculator – Recipe & Menu Costing",
+  "short_name": "Food Cost",
+  "version": "1.0.0",
+  "description": "Food cost calculator for restaurants and cafes: cost a recipe with yield, get plate cost, food cost %, GP and menu price.",
+  "homepage_url": "https://www.theopenpantry.com/food-cost-calculator",
+  "permissions": ["storage"],
+  "action": {
+    "default_title": "Food Cost Calculator by Open Pantry",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  }
+}

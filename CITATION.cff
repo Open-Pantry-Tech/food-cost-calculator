@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: "If you use this food cost calculator or its food cost formula, please cite it as below."
+title: "Food Cost Calculator & Food Cost Formula"
+abstract: >-
+  Free, open source food cost calculator: recipe costing with yield, plate cost,
+  food cost percentage, gross profit, GP % and menu pricing to a target food cost.
+  Dependency-free JavaScript and Python.
+type: software
+authors:
+  - name: "Open Pantry"
+    website: "https://www.theopenpantry.com"
+version: 1.0.0
+date-released: 2026-11-09
+license: MIT
+url: "https://www.theopenpantry.com/food-cost-calculator"
+keywords:
+  - food cost calculator
+  - food cost formula
+  - food cost percentage
+  - recipe costing
+  - recipe cost calculator
+  - menu costing
+  - menu price calculator
+  - plate cost
+  - gross profit
+  - restaurant food cost
+  - cafe food cost
+repository-code: "https://github.com/Open-Pantry-Tech/food-cost-calculator"

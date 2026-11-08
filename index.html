@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Food Cost Calculator – Recipe & Menu Costing (open source demo)</title>
+  <meta name="description" content="Free, open source food cost calculator. Cost a recipe line by line with yield and get plate cost, food cost percentage, gross profit and the menu price that hits your target.">
+  <link rel="canonical" href="https://www.theopenpantry.com/food-cost-calculator">
+  <style>
+    :root {
+      --navy: #152144; --navy-2: #1f2e5a; --teal: #51d9b0; --teal-ink: #127a5c; --teal-soft: #eaf8f3;
+      --blue: #33a8e2; --blue-soft: #e6f4fc; --ink: #4e5468; --muted: #6b7288; --line: #cfd7e6;
+      --bg: #f6f9fc; --error: #d31d04; --error-soft: #fde8e4;
+      font-family: 'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      color: var(--ink);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body { background: var(--bg); font-size: 15px; line-height: 1.5; }
+    a { color: #1b6e98; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px; }
+    header.site { background: var(--navy); color: #fff; }
+    header.site .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 14px; padding-bottom: 14px; }
+    header.site b { font-size: 16px; }
+    header.site b span { color: var(--teal); font-weight: 600; }
+    header.site nav a { color: var(--teal); font-weight: 600; font-size: 14px; text-decoration: none; margin-left: 16px; }
+    .hero { background: var(--navy); color: #dfe5f2; padding: 20px 0 64px; }
+    .hero h1 { color: #fff; font-size: clamp(26px, 4vw, 38px); line-height: 1.15; margin: 0 0 10px; }
+    .hero p { margin: 0; max-width: 680px; font-size: 16px; }
+    .hero code { background: rgba(255, 255, 255, 0.1); padding: 1px 6px; border-radius: 4px; color: #fff; }
+
+    .calc { display: grid; grid-template-columns: 1fr 300px; gap: 16px; margin-top: -44px; align-items: start; }
+    .card { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+    .card h2 { font-size: 15px; color: var(--navy); margin: 0 0 12px; }
+    .fields { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    label > span { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 3px; }
+    input, select {
+      width: 100%; font: inherit; font-size: 14px; color: var(--navy); background: #fff;
+      border: 1px solid var(--line); border-radius: 6px; padding: 7px 8px; min-height: 36px;
+    }
+    input:focus, select:focus { outline: 2px solid var(--blue); border-color: var(--blue); }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 14px; table-layout: fixed; }
+    col.c-name { width: 22%; } col.c-num { width: 11.5%; } col.c-unit { width: 12%; } col.c-y { width: 10%; } col.c-cost { width: 10%; } col.c-del { width: 38px; }
+    th { font-size: 11.5px; font-weight: 700; color: var(--muted); text-align: left; padding: 0 4px 6px; white-space: nowrap; }
+    td { padding: 4px; border-top: 1px solid #edf1f7; vertical-align: middle; }
+    td input, td select { min-height: 32px; padding: 5px 5px; font-size: 13.5px; }
+    td.cost { text-align: right; font-weight: 700; color: var(--navy); white-space: nowrap; font-variant-numeric: tabular-nums; min-width: 64px; }
+    tr.bad td { background: var(--error-soft); }
+    .del { border: 1px solid var(--line); background: #fff; border-radius: 6px; width: 30px; height: 30px; cursor: pointer; color: var(--muted); font-size: 16px; }
+    .del:hover { color: var(--error); border-color: var(--error); }
+    .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 12px; }
+    .btn { border: 0; border-radius: 8px; background: var(--teal); color: var(--navy); font: inherit; font-weight: 700; padding: 9px 16px; cursor: pointer; }
+    .link { border: 0; background: none; padding: 0; font: inherit; font-size: 14px; color: #1b6e98; text-decoration: underline; cursor: pointer; }
+    .err { color: var(--error); font-size: 13px; margin: 8px 0 0; }
+
+    .results { position: sticky; top: 16px; }
+    .kicker { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); }
+    .big { font-size: 44px; font-weight: 800; color: var(--navy); line-height: 1.05; font-variant-numeric: tabular-nums; }
+    .chip { display: inline-block; font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 999px; border: 1px solid; margin-top: 6px; }
+    .chip.on { background: var(--teal-soft); color: var(--teal-ink); border-color: var(--teal); }
+    .chip.over, .chip.warn { background: var(--error-soft); color: var(--error); border-color: var(--error); }
+    .chip.under { background: var(--blue-soft); color: #1b6e98; border-color: var(--blue); }
+    dl { margin: 14px 0 0; }
+    dl div { display: flex; justify-content: space-between; padding: 7px 0; border-top: 1px solid #edf1f7; }
+    dt { color: var(--ink); }
+    dd { margin: 0; font-weight: 700; color: var(--navy); font-variant-numeric: tabular-nums; }
+    .verdict { font-size: 13.5px; margin: 12px 0 0; }
+    .verdict.over { color: var(--error); }
+    .cta { margin-top: 14px; background: var(--navy); color: #dfe5f2; border-radius: 10px; padding: 14px; font-size: 13.5px; }
+    .cta a { color: var(--teal); font-weight: 700; }
+
+    .info { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0; }
+    .info h2 { font-size: 17px; }
+    .info code { display: block; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; color: var(--navy); font-size: 13.5px; margin: 6px 0; white-space: normal; }
+    footer { padding: 20px 0 40px; font-size: 13px; color: var(--muted); }
+
+    @media (max-width: 860px) {
+      .calc, .info { grid-template-columns: 1fr; }
+      .results { position: static; order: -1; }
+      .fields { grid-template-columns: 1fr 1fr; }
+      .fields label:first-child { grid-column: 1 / -1; }
+      thead { display: none; }
+      table, tbody, tr, td { display: block; }
+      colgroup { display: none; }
+      tr { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; border: 1px solid var(--line); border-radius: 8px; padding: 8px; margin-bottom: 8px; }
+      td { border: 0; padding: 0; grid-column: span 2; order: 3; }
+      td.name { grid-column: span 4; order: 0; }
+      td.cost { grid-column: span 1; order: 1; align-self: center; min-width: 0; }
+      td.del-cell { grid-column: span 1; order: 2; justify-self: end; }
+      td[data-label]::before { content: attr(data-label); display: block; font-size: 11px; font-weight: 600; color: var(--muted); }
+      td.cost::before { content: none; }
+      td.name::before { content: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site">
+    <div class="wrap">
+      <b>Food Cost Calculator <span>· open source</span></b>
+      <nav>
+        <a href="https://www.theopenpantry.com/food-cost-calculator">Online calculator</a>
+        <a href="https://www.theopenpantry.com/menuprofitmanager">Menu Profit Manager</a>
+      </nav>
+    </div>
+  </header>
+  <section class="hero">
+    <div class="wrap">
+      <h1>Food cost calculator</h1>
+      <p>Food cost % = plate cost ÷ menu price excluding GST × 100. Most Australian venues aim for 28–32% across the menu. This demo runs on <code>src/foodCost.js</code>, a dependency-free library you can use in your own code.</p>
+    </div>
+  </section>
+
+  <main class="wrap">
+    <div class="calc">
+      <section class="card" aria-label="Dish and ingredients">
+        <div class="fields">
+          <label><span>Dish</span><input id="dish" placeholder="e.g. Beef burger" autocomplete="off"></label>
+          <label><span>Menu price ($)</span><input id="price" type="number" min="0" step="any" inputmode="decimal"></label>
+          <label><span>Target food cost (%)</span><input id="target" type="number" min="1" max="90" step="1" inputmode="decimal"></label>
+        </div>
+        <label><span>Tax</span>
+          <select id="tax">
+            <option value="0.1">Menu price includes 10% GST</option>
+            <option value="0">No tax in the menu price</option>
+          </select>
+        </label>
+        <table>
+          <colgroup><col class="c-name"><col class="c-num"><col class="c-num"><col class="c-unit"><col class="c-num"><col class="c-unit"><col class="c-y"><col class="c-cost"><col class="c-del"></colgroup>
+          <thead>
+            <tr><th>Ingredient</th><th>Pack price</th><th>Pack size</th><th>Unit</th><th>Qty used</th><th>Unit</th><th>Yield %</th><th style="text-align:right">Line cost</th><th></th></tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+        <p class="err" id="err" hidden>Weight, volume and count don't convert. A highlighted line uses different kinds of unit for the pack and the quantity, so it is left out of the plate cost.</p>
+        <div class="actions">
+          <button type="button" class="btn" id="add">+ Add ingredient</button>
+          <button type="button" class="link" id="example">Load the schnitzel example</button>
+          <button type="button" class="link" id="clear">Start blank</button>
+        </div>
+      </section>
+
+      <aside class="card results" aria-live="polite" aria-label="Results">
+        <div class="kicker">Food cost</div>
+        <div class="big" id="out-fc">–</div>
+        <span class="chip" id="out-status" hidden></span>
+        <dl>
+          <div><dt>Plate cost</dt><dd id="out-plate">–</dd></div>
+          <div><dt id="out-ex-label">Menu price ex GST</dt><dd id="out-ex">–</dd></div>
+          <div><dt>Gross profit</dt><dd id="out-gp">–</dd></div>
+          <div><dt>GP %</dt><dd id="out-gpp">–</dd></div>
+          <div><dt id="out-sugg-label">Menu price at target</dt><dd id="out-sugg">–</dd></div>
+        </dl>
+        <p class="verdict" id="out-verdict"></p>
+        <div class="cta">Costing a whole menu? <a href="https://www.theopenpantry.com/menuprofitmanager">Menu Profit Manager</a> reads your supplier invoices and keeps every dish costed. Or use the <a href="https://www.theopenpantry.com/food-cost-calculator#template">recipe costing template</a>.</div>
+      </aside>
+    </div>
+
+    <div class="info">
+      <section class="card">
+        <h2>The food cost formula</h2>
+        <code>Line cost = pack price ÷ pack size × quantity used ÷ yield</code>
+        <code>Food cost % = plate cost ÷ (menu price ÷ 1.1) × 100</code>
+        <code>Menu price at target = plate cost ÷ target × 1.1</code>
+        <p>Pack size and quantity must be the same kind of unit: weight with weight, volume with volume, count with count. 1 L of cream is not 1 kg.</p>
+      </section>
+      <section class="card">
+        <h2>Use it in code</h2>
+        <code>import { costDish } from './src/foodCost.js';</code>
+        <code>from food_cost import cost_dish</code>
+        <p>JavaScript (ES module) and Python, no dependencies, MIT licence. See the README for the full API.</p>
+      </section>
+    </div>
+  </main>
+  <footer class="wrap">
+    Made by <a href="https://www.theopenpantry.com">Open Pantry</a>, a B2B food ordering and operations platform connecting wholesale suppliers with restaurants, cafes and venues. MIT licence. Your dish is kept in this browser only.
+  </footer>
+
+  <script type="module">
+    import { SAMPLE_DISH, costDish, lineCost, isCompatible } from './src/foodCost.js';
+
+    const $ = (id) => document.getElementById(id);
+    const UNIT_ORDER = ['kg', 'g', 'L', 'ml', 'each', 'dozen', 'lb', 'oz', 'gal', 'qt', 'fl oz'];
+    const KEY = 'food-cost-demo';
+    const money = (n) => (Number.isFinite(n) ? '$' + n.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '–');
+    const pct = (n) => (Number.isFinite(n) ? n.toFixed(1) + '%' : '–');
+
+    const example = () => ({
+      dish: SAMPLE_DISH.name, menuPrice: String(SAMPLE_DISH.menuPrice), taxRate: '0.1', targetPct: '30',
+      ingredients: SAMPLE_DISH.ingredients.map((r) => ({ ...r, packPrice: r.packPrice.toFixed(2), packSize: String(r.packSize), qtyUsed: String(r.qtyUsed), yieldPct: String(r.yieldPct) })),
+    });
+    const blankRow = () => ({ name: '', packPrice: '', packSize: '1', packUnit: 'kg', qtyUsed: '', qtyUnit: 'g', yieldPct: '100' });
+    const blank = () => ({ dish: '', menuPrice: '', taxRate: '0.1', targetPct: '30', ingredients: [blankRow(), blankRow(), blankRow()] });
+
+    let state = example();
+    try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && Array.isArray(s.ingredients)) state = s; } catch { /* private mode */ }
+    const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { /* ignore */ } };
+
+    const unitSelect = (cls, value, label) =>
+      `<select class="${cls}" aria-label="${label}">${UNIT_ORDER.map((u) => `<option${u === value ? ' selected' : ''}>${u}</option>`).join('')}</select>`;
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+    function renderRows() {
+      $('rows').innerHTML = state.ingredients.map((r, i) => `
+        <tr data-i="${i}">
+          <td class="name"><input class="f-name" value="${esc(r.name)}" placeholder="Ingredient" aria-label="Ingredient ${i + 1}"></td>
+          <td data-label="Pack price"><input class="f-packPrice" type="number" min="0" step="any" value="${esc(r.packPrice)}" aria-label="Pack price"></td>
+          <td data-label="Pack size"><input class="f-packSize" type="number" min="0" step="any" value="${esc(r.packSize)}" aria-label="Pack size"></td>
+          <td data-label="Unit">${unitSelect('f-packUnit', r.packUnit, 'Pack unit')}</td>
+          <td data-label="Qty used"><input class="f-qtyUsed" type="number" min="0" step="any" value="${esc(r.qtyUsed)}" aria-label="Quantity used"></td>
+          <td data-label="Unit">${unitSelect('f-qtyUnit', r.qtyUnit, 'Quantity unit')}</td>
+          <td data-label="Yield %"><input class="f-yieldPct" type="number" min="1" max="100" step="1" value="${esc(r.yieldPct)}" aria-label="Yield percent"></td>
+          <td class="cost">–</td>
+          <td class="del-cell"><button type="button" class="del" aria-label="Remove ingredient ${i + 1}">×</button></td>
+        </tr>`).join('');
+    }
+    function renderInputs() {
+      $('dish').value = state.dish; $('price').value = state.menuPrice; $('target').value = state.targetPct;
+      $('tax').value = String(state.taxRate) === '0' ? '0' : '0.1';
+      renderRows();
+    }
+
+    function compute() {
+      const taxRate = parseFloat(state.taxRate) || 0;
+      const target = parseFloat(state.targetPct) || 30;
+      const r = costDish({ ingredients: state.ingredients, menuPrice: state.menuPrice, taxRate, targetPct: target });
+      document.querySelectorAll('#rows tr').forEach((tr) => {
+        const ing = state.ingredients[Number(tr.dataset.i)];
+        const ok = isCompatible(ing.packUnit, ing.qtyUnit);
+        tr.classList.toggle('bad', !ok);
+        tr.querySelector('.cost').textContent = ok ? money(lineCost(ing)) : '–';
+      });
+      $('err').hidden = !r.hasMismatch;
+      $('out-fc').textContent = pct(r.foodCostPct);
+      $('out-plate').textContent = money(r.plateCost);
+      $('out-ex-label').textContent = taxRate > 0 ? 'Menu price ex GST' : 'Menu price';
+      $('out-ex').textContent = money(r.priceExTax);
+      $('out-gp').textContent = money(r.grossProfit);
+      $('out-gpp').textContent = pct(r.gpPct);
+      $('out-sugg-label').textContent = `Menu price at ${target}%${taxRate > 0 ? ' (incl GST)' : ''}`;
+      $('out-sugg').textContent = money(r.menuPriceAtTarget);
+      const chip = $('out-status'), v = $('out-verdict');
+      chip.className = 'chip'; v.className = 'verdict';
+      if (r.hasMismatch) {
+        chip.hidden = false; chip.classList.add('warn'); chip.textContent = 'Check units';
+        v.textContent = 'One line mixes weight, volume and count.';
+      } else if (!r.status) {
+        chip.hidden = true; v.textContent = 'Enter a menu price to see your food cost.';
+      } else {
+        chip.hidden = false; chip.classList.add(r.status); chip.textContent = r.statusLabel;
+        if (r.status === 'over') { v.classList.add('over'); v.textContent = `Over target by ${(r.foodCostPct - target).toFixed(1)} points. ${money(r.menuPriceAtTarget)} on the menu would bring this dish back to ${target}%.`; }
+        else if (r.status === 'under') v.textContent = 'Well under target. This dish is carrying margin for the rest of the menu.';
+        else v.textContent = 'On target. Keep an eye on the most expensive line. It moves the most when supplier prices change.';
+      }
+    }
+
+    const onRow = (e) => {
+      const tr = e.target.closest('tr'); if (!tr) return;
+      const cls = [...e.target.classList].find((c) => c.startsWith('f-')); if (!cls) return;
+      state.ingredients[Number(tr.dataset.i)][cls.slice(2)] = e.target.value;
+      compute(); save();
+    };
+    $('rows').addEventListener('input', onRow);
+    $('rows').addEventListener('change', onRow);
+    $('rows').addEventListener('click', (e) => {
+      if (!e.target.classList.contains('del')) return;
+      state.ingredients.splice(Number(e.target.closest('tr').dataset.i), 1);
+      renderRows(); compute(); save();
+    });
+    for (const [id, key] of [['dish', 'dish'], ['price', 'menuPrice'], ['target', 'targetPct'], ['tax', 'taxRate']]) {
+      const h = () => { state[key] = $(id).value; compute(); save(); };
+      $(id).addEventListener('input', h); $(id).addEventListener('change', h);
+    }
+    $('add').addEventListener('click', () => { state.ingredients.push(blankRow()); renderRows(); compute(); save(); $('rows').lastElementChild.querySelector('.f-name').focus(); });
+    $('example').addEventListener('click', () => { state = example(); renderInputs(); compute(); save(); });
+    $('clear').addEventListener('click', () => { state = blank(); renderInputs(); compute(); save(); });
+
+    renderInputs();
+    compute();
+    document.documentElement.dataset.ready = '1';
+  </script>
+</body>
+</html>
